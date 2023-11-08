@@ -1,11 +1,18 @@
 export const resolvers = {
   Query: {
-    job: () => {
-      return {
-        id: 'test-id',
-        title: 'Test Job',
-        description: 'Details of job',
-      };
+    jobs: () => {
+      return [
+        {
+          id: 'test-id',
+          title: 'Test Job',
+          description: 'Details of job',
+        },
+        {
+          id: 'test-id2',
+          title: 'Test Job2',
+          description: 'Details of job again',
+        },
+      ];
     },
   },
 };
