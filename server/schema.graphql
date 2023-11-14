@@ -5,10 +5,10 @@ type Query {
 }
 
 type Company {
-    id: ID!
-    name: String!
-    description: String
-    jobs: [Job]
+  id: ID!
+  name: String!
+  description: String
+  jobs: [Job!]!
 }
 
 """ Represents a job ad posted to our board."""
