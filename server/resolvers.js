@@ -1,4 +1,4 @@
-import { getJobs, getJob, getJobsByCompany } from './db/jobs.js';
+import { getJobs, getJob, getJobsByCompany, createJob } from './db/jobs.js';
 import { getCompany } from './db/companies.js';
 
 export const resolvers = {
@@ -6,6 +6,14 @@ export const resolvers = {
     jobs: () => getJobs(),
     job: (_root, { id }) => getJob(id),
     company: (_root, { id }) => getCompany(id),
+  },
+
+  Mutation: {
+    createJob: (_root, { title, description }) => {
+      // TODO - change once we have auth
+      const companyId = 'FjcJCHJALA4i';
+      return createJob({ companyId, title, description });
+    },
   },
 
   Company: {
