@@ -1,4 +1,10 @@
-import { getJobs, getJob, getJobsByCompany, createJob } from './db/jobs.js';
+import {
+  getJobs,
+  getJob,
+  getJobsByCompany,
+  createJob,
+  deleteJob,
+} from './db/jobs.js';
 import { getCompany } from './db/companies.js';
 
 export const resolvers = {
@@ -14,6 +20,7 @@ export const resolvers = {
       const companyId = 'FjcJCHJALA4i';
       return createJob({ companyId, title, description });
     },
+    deleteJob: (_root, { id }) => deleteJob(id),
   },
 
   Company: {

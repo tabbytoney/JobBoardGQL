@@ -13,6 +13,7 @@ type Company {
 
 type Mutation {
     createJob(input: CreateJobInput!): Job!
+    deleteJob(id: ID!): Job
 }
 
 """ Represents a job ad posted to our board."""
