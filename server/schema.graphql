@@ -14,6 +14,7 @@ type Company {
 type Mutation {
     createJob(input: CreateJobInput!): Job!
     deleteJob(id: ID!): Job
+    updateJob(input: UpdateJobInput!): Job
 }
 
 """ Represents a job ad posted to our board."""
@@ -28,5 +29,11 @@ type Job {
 
 input CreateJobInput {
     title: String!
+    description: String
+}
+
+input UpdateJobInput {
+    id: ID!
+    title: String
     description: String
 }
