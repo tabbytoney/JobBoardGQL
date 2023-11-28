@@ -16,8 +16,10 @@ export const resolvers = {
   },
 
   Mutation: {
-    createJob: (_root, { input: { title, description } }) => {
-      // TODO - change once we have auth
+    createJob: (_root, { input: { title, description } }, { auth }) => {
+      if (!auth) {
+        throw unauthorizedError('Missing authentication');
+      }
       const companyId = 'FjcJCHJALA4i';
       return createJob({ companyId, title, description });
     },
@@ -39,6 +41,20 @@ export const resolvers = {
 
 const toIsoDate = (value) => {
   return value.slice(0, 'yyyy-mm-dd'.length, 10);
+};
+
+const unauthorizedError = (message) => {
+  return new GraphQLError(message, {
+    extensions: { code: 'UNAUTHORIZED' },
+  });
+};
+
+const notFoundError = (message) => {
+  return new GraphQLError(message, {
+    extensions: {
+      code: 'NOT_FOUND',
+    },
+  });
 };
 
 // harcoded data was inside the Query > job object
