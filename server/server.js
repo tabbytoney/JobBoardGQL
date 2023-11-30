@@ -5,6 +5,7 @@ import { ApolloServer } from '@apollo/server';
 import { expressMiddleware as apolloMiddleware } from '@apollo/server/express4';
 import { readFile } from 'node:fs/promises';
 import { resolvers } from './resolvers.js';
+import { getUser } from './db/users.js';
 
 const PORT = 9000;
 
@@ -15,8 +16,13 @@ app.post('/login', handleLogin);
 
 const typeDefs = await readFile('./schema.graphql', 'utf8');
 
-const getContext = ({ req }) => {
-  return { auth: req.auth };
+const getContext = async ({ req }) => {
+  if (req.auth) {
+    // userId is available from the auth object as the sub property
+    const user = await getUser(req.auth.sub);
+    return { user };
+  }
+  return {};
 };
 
 const apolloServer = new ApolloServer({ typeDefs, resolvers });

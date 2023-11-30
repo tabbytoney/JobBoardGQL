@@ -7,6 +7,7 @@ import {
   updateJob,
 } from './db/jobs.js';
 import { getCompany } from './db/companies.js';
+import { GraphQLError } from 'graphql';
 
 export const resolvers = {
   Query: {
@@ -16,12 +17,14 @@ export const resolvers = {
   },
 
   Mutation: {
-    createJob: (_root, { input: { title, description } }, { auth }) => {
-      if (!auth) {
+    createJob: (_root, { input: { title, description } }, { user }) => {
+      if (!user) {
         throw unauthorizedError('Missing authentication');
       }
-      const companyId = 'FjcJCHJALA4i';
-      return createJob({ companyId, title, description });
+      console.log('user:', user);
+      return null;
+      // const companyId = 'FjcJCHJALA4i';
+      // return createJob({ companyId, title, description });
     },
     deleteJob: (_root, { id }) => deleteJob(id),
     updateJob: (_root, { input: { id, title, description } }) => {
@@ -49,13 +52,13 @@ const unauthorizedError = (message) => {
   });
 };
 
-const notFoundError = (message) => {
-  return new GraphQLError(message, {
-    extensions: {
-      code: 'NOT_FOUND',
-    },
-  });
-};
+// const notFoundError = (message) => {
+//   return new GraphQLError(message, {
+//     extensions: {
+//       code: 'NOT_FOUND',
+//     },
+//   });
+// };
 
 // harcoded data was inside the Query > job object
 //   return [
