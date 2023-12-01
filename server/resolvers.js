@@ -21,10 +21,10 @@ export const resolvers = {
       if (!user) {
         throw unauthorizedError('Missing authentication');
       }
-      console.log('user:', user);
-      return null;
-      // const companyId = 'FjcJCHJALA4i';
-      // return createJob({ companyId, title, description });
+      // console.log('user:', user);
+      // return null;
+      const companyId = 'FjcJCHJALA4i';
+      return createJob({ companyId, title, description });
     },
     deleteJob: (_root, { id }) => deleteJob(id),
     updateJob: (_root, { input: { id, title, description } }) => {
