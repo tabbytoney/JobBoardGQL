@@ -21,7 +21,7 @@ To view data in SQLite, installed VSC extension "SQLite Viewer" by Florian Klamp
 ![image](https://github.com/tabbytoney/JobBoardGQL/assets/60009709/b328484c-2f66-4c04-8fc0-61cb1ae259a1)
 
 To log in, go to /login
-Enter credentials (TBD)
+Enter credentials (TBD, right now I have these on a postIt note)
 Get token from Dev tools>Application>local storage
 
-In sandbox, create new header. Authorization and type in Bearer [token here]
+In sandbox, create new header. Authorization and type in `Bearer [token here]`
