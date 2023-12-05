@@ -26,7 +26,17 @@ export const resolvers = {
       const companyId = 'FjcJCHJALA4i';
       return createJob({ companyId, title, description });
     },
-    deleteJob: (_root, { id }) => deleteJob(id),
+    deleteJob: async (_root, { id }, { user }) => {
+      if (!user) {
+        throw unauthorizedError('Missing authentication');
+      }
+      // only allow deleting jobs from the same company as the user - see deleteJob in db/jobs.js
+      const job = await deleteJob(id, user.companyId);
+      if (!job) {
+        throw notFoundError('No job found with id ' + id);
+      }
+      return job;
+    },
     updateJob: (_root, { input: { id, title, description } }) => {
       return updateJob({ id, title, description });
     },
@@ -52,13 +62,13 @@ const unauthorizedError = (message) => {
   });
 };
 
-// const notFoundError = (message) => {
-//   return new GraphQLError(message, {
-//     extensions: {
-//       code: 'NOT_FOUND',
-//     },
-//   });
-// };
+const notFoundError = (message) => {
+  return new GraphQLError(message, {
+    extensions: {
+      code: 'NOT_FOUND',
+    },
+  });
+};
 
 // harcoded data was inside the Query > job object
 //   return [
