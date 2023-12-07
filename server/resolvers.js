@@ -12,8 +12,19 @@ import { GraphQLError } from 'graphql';
 export const resolvers = {
   Query: {
     jobs: () => getJobs(),
-    job: (_root, { id }) => getJob(id),
-    company: (_root, { id }) => getCompany(id),
+    job: async (_root, { id }) => {
+      const job = await getJob(id);
+      if (!job) {
+        throw notFoundError(`Job not found with id ${id}`);
+      }
+    },
+    company: async (_root, { id }) => {
+      const company = await getCompany(id);
+      if (!company) {
+        throw notFoundError(`Company not found with id ${id}`);
+      }
+      return company;
+    },
   },
 
   Mutation: {
@@ -67,6 +78,12 @@ export const resolvers = {
     company: (job) => getCompany(job.companyId),
     date: (job) => toIsoDate(job.createdAt),
   },
+};
+
+const notFoundError = (message) => {
+  return new GraphQLError(message, {
+    extensions: { code: 'NOT_FOUND' },
+  });
 };
 
 const toIsoDate = (value) => {
