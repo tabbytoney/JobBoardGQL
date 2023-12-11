@@ -1,19 +1,48 @@
-import { GraphQLClient } from 'graphql-request';
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
+import {
+  ApolloClient,
+  InMemoryCache,
+  gql,
+  createHttpLink,
+  ApolloLink,
+  concat,
+} from '@apollo/client';
 import { getAccessToken } from '../auth';
 
-const client = new GraphQLClient('http://localhost:9000/graphql', {
-  headers: () => {
-    const accessToken = getAccessToken();
-    if (accessToken) {
-      return { Authorization: `Bearer ${accessToken}` };
-    }
-    return {};
-  },
+// const client = new GraphQLClient('http://localhost:9000/graphql', {
+//   headers: () => {
+//     const accessToken = getAccessToken();
+//     if (accessToken) {
+//       return { Authorization: `Bearer ${accessToken}` };
+//     }
+//     return {};
+//   },
+// });
+
+// Apollo Client links are chainable (links between GQL operations and GQL server), so we can add a link to the chain that
+// adds the Authorization header to every request
+
+const authLink = createHttpLink({
+  uri: 'http://localhost:9000/graphql',
+});
+
+// forwards to the next link in the chain
+const customLink = new ApolloLink((operation, forward) => {
+  // console.log('[authLink] operation:', operation);
+  const accessToken = getAccessToken();
+  if (accessToken) {
+    // context is an object that is passed to every link in the chain
+    operation.setContext({
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+  }
+  return forward(operation);
 });
 
 const apolloClient = new ApolloClient({
-  uri: 'http://localhost:9000/graphql',
+  // the order of the links is important - the first link in the chain is the first one to be called
+  link: concat(customLink, authLink),
   cache: new InMemoryCache(),
 });
 
@@ -25,10 +54,14 @@ export const createJob = async ({ title, description }) => {
       }
     }
   `;
-  const { job } = await client.request(mutation, {
-    input: { title, description },
+  // const { job } = await client.request(mutation, {
+  //   input: { title, description },
+  // });
+  const { data } = await apolloClient.mutate({
+    mutation,
+    variables: { input: { title, description } },
   });
-  return job;
+  return data.job;
 };
 
 export const getJob = async (id) => {
@@ -52,7 +85,7 @@ export const getJob = async (id) => {
 
 export const getJobs = async () => {
   const query = gql`
-    {
+    query Jobs {
       jobs {
         id
         date
