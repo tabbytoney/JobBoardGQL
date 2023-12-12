@@ -11,9 +11,21 @@ import { GraphQLError } from 'graphql';
 
 export const resolvers = {
   Query: {
+    company: async (_root, { id }) => {
+      const company = await getCompany(id);
+      if (!company) {
+        throw notFoundError('No Company found with id ' + id);
+      }
+      return company;
+    },
+    job: async (_root, { id }) => {
+      const job = await getJob(id);
+      if (!job) {
+        throw notFoundError('No Job found with id ' + id);
+      }
+      return job;
+    },
     jobs: () => getJobs(),
-    job: (_root, { id }) => getJob(id),
-    company: (_root, { id }) => getCompany(id),
   },
 
   Mutation: {
@@ -21,10 +33,7 @@ export const resolvers = {
       if (!user) {
         throw unauthorizedError('Missing authentication');
       }
-      // console.log('user:', user);
-      // return null;
-      const companyId = 'FjcJCHJALA4i';
-      return createJob({ companyId, title, description });
+      return createJob({ companyId: user.companyId, title, description });
     },
     deleteJob: async (_root, { id }, { user }) => {
       if (!user) {
@@ -45,15 +54,14 @@ export const resolvers = {
       if (!user) {
         throw unauthorizedError('Missing authentication');
       }
-
       const job = await updateJob({
         id,
+        companyId: user.companyId,
         title,
         description,
-        companyId: user.companyId,
       });
       if (!job) {
-        throw notFoundError('No job found with id ' + id);
+        throw notFoundError('No Job found with id ' + id);
       }
       return job;
     },
