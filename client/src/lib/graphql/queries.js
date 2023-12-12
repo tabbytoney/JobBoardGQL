@@ -55,28 +55,25 @@ const apolloClient = new ApolloClient({
   // },
 });
 
+const jobByIdQuery = gql`
+  query JobById($id: ID!) {
+    job(id: $id) {
+      id
+      date
+      title
+      company {
+        id
+        name
+      }
+      description
+    }
+  }
+`;
+
 export const createJob = async ({ title, description }) => {
   const mutation = gql`
     mutation CreateJob($input: CreateJobInput!) {
       job: createJob(input: $input) {
-        id
-      }
-    }
-  `;
-  // const { job } = await client.request(mutation, {
-  //   input: { title, description },
-  // });
-  const { data } = await apolloClient.mutate({
-    mutation,
-    variables: { input: { title, description } },
-  });
-  return data.job;
-};
-
-export const getJob = async (id) => {
-  const query = gql`
-    query JobById($id: ID!) {
-      job(id: $id) {
         id
         date
         title
@@ -88,7 +85,28 @@ export const getJob = async (id) => {
       }
     }
   `;
-  const { data } = await apolloClient.query({ query, variables: { id } });
+  // const { job } = await client.request(mutation, {
+  //   input: { title, description },
+  // });
+  const { data } = await apolloClient.mutate({
+    mutation,
+    variables: { input: { title, description } },
+    update: (cache, { data }) => {
+      cache.writeQuery({
+        query: jobByIdQuery,
+        variables: { id: data.job.id },
+        data,
+      });
+    },
+  });
+  return data.job;
+};
+
+export const getJob = async (id) => {
+  const { data } = await apolloClient.query({
+    query: jobByIdQuery,
+    variables: { id },
+  });
   return data.job;
 };
 
