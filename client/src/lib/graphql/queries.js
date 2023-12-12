@@ -44,6 +44,15 @@ const apolloClient = new ApolloClient({
   // the order of the links is important - the first link in the chain is the first one to be called
   link: concat(customLink, authLink),
   cache: new InMemoryCache(),
+  // use the below if we want data to update automatically when we create a new job
+  // defaultOptions: {
+  //   query: {
+  //     fetchPolicy: 'network-only',
+  //   },
+  //   watchQuery: {
+  //     fetchPolicy: 'network-only',
+  //   },
+  // },
 });
 
 export const createJob = async ({ title, description }) => {
@@ -97,7 +106,10 @@ export const getJobs = async () => {
       }
     }
   `;
-  const { data } = await apolloClient.query({ query });
+  const { data } = await apolloClient.query({
+    query,
+    fetchPolicy: 'network-only',
+  });
   return data.jobs;
 };
 
