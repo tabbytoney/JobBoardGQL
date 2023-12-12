@@ -40,11 +40,12 @@ const customLink = new ApolloLink((operation, forward) => {
   return forward(operation);
 });
 
-const apolloClient = new ApolloClient({
+export const apolloClient = new ApolloClient({
   // the order of the links is important - the first link in the chain is the first one to be called
   link: concat(customLink, authLink),
   cache: new InMemoryCache(),
   // use the below if we want data to update automatically when we create a new job
+  // watch query is what React hooks use
   // defaultOptions: {
   //   query: {
   //     fetchPolicy: 'network-only',
@@ -68,6 +69,19 @@ const jobDetailFragment = gql`
   }
 `;
 
+const companyDetailFragment = gql`
+  fragment CompanyDetail on Company {
+    id
+    name
+    description
+    jobs {
+      id
+      date
+      title
+    }
+  }
+`;
+
 const jobByIdQuery = gql`
   query JobById($id: ID!) {
     job(id: $id) {
@@ -75,6 +89,15 @@ const jobByIdQuery = gql`
     }
   }
   ${jobDetailFragment}
+`;
+
+export const companyByIdQuery = gql`
+  query CompanyById($id: ID!) {
+    company(id: $id) {
+      ...CompanyDetail
+    }
+  }
+  ${companyDetailFragment}
 `;
 
 export const createJob = async ({ title, description }) => {
@@ -132,21 +155,10 @@ export const getJobs = async () => {
   return data.jobs;
 };
 
-export const getCompany = async (id) => {
-  const query = gql`
-    query CompanyById($id: ID!) {
-      company(id: $id) {
-        id
-        name
-        description
-        jobs {
-          id
-          date
-          title
-        }
-      }
-    }
-  `;
-  const { data } = await apolloClient.query({ query, variables: { id } });
-  return data.company;
-};
+// export const getCompany = async (id) => {
+//   const { data } = await apolloClient.query({
+//     query: companyByIdQuery,
+//     variables: { id },
+//   });
+//   return data.company;
+// };
