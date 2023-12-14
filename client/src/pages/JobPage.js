@@ -1,25 +1,20 @@
 import { useParams } from 'react-router';
 import { Link } from 'react-router-dom';
 import { formatDate } from '../lib/formatters';
-import { useEffect, useState } from 'react';
-import { getJob } from '../lib/graphql/queries';
+import { useJob } from '../lib/graphql/hooks';
 
-function JobPage() {
+export const JobPage = () => {
   // get jobId from Url
   const { jobId } = useParams();
-  const [job, setJob] = useState();
+  const { job, loading, error } = useJob(jobId);
 
-  useEffect(() => {
-    getJob(jobId).then(setJob);
-  }, [jobId]);
-
-  // will error without this bc job is undefined
-  if (!job) {
-    return <div>Loading </div>;
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  if (error) {
+    return <div className='has-text-danger'>Data unavailable</div>;
   }
 
-  // when using fake data:
-  // const job = jobs.find((job) => job.id === jobId);
   return (
     <div>
       <h1 className='title is-2'>{job.title}</h1>
@@ -34,6 +29,6 @@ function JobPage() {
       </div>
     </div>
   );
-}
+};
 
 export default JobPage;
