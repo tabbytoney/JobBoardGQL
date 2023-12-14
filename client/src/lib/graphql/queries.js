@@ -8,16 +8,6 @@ import {
 } from '@apollo/client';
 import { getAccessToken } from '../auth';
 
-// const client = new GraphQLClient('http://localhost:9000/graphql', {
-//   headers: () => {
-//     const accessToken = getAccessToken();
-//     if (accessToken) {
-//       return { Authorization: `Bearer ${accessToken}` };
-//     }
-//     return {};
-//   },
-// });
-
 // Apollo Client links are chainable (links between GQL operations and GQL server), so we can add a link to the chain that
 // adds the Authorization header to every request
 
@@ -114,28 +104,11 @@ export const jobsQuery = gql`
   }
 `;
 
-export const createJob = async ({ title, description }) => {
-  const mutation = gql`
-    mutation CreateJob($input: CreateJobInput!) {
-      job: createJob(input: $input) {
-        ...JobDetail
-      }
+export const createJobMutation = gql`
+  mutation CreateJob($input: CreateJobInput!) {
+    job: createJob(input: $input) {
+      ...JobDetail
     }
-    ${jobDetailFragment}
-  `;
-  // const { job } = await client.request(mutation, {
-  //   input: { title, description },
-  // });
-  const { data } = await apolloClient.mutate({
-    mutation,
-    variables: { input: { title, description } },
-    update: (cache, { data }) => {
-      cache.writeQuery({
-        query: jobByIdQuery,
-        variables: { id: data.job.id },
-        data,
-      });
-    },
-  });
-  return data.job;
-};
+  }
+  ${jobDetailFragment}
+`;
